@@ -1,5 +1,6 @@
 import { app } from '@/app'
 import { env } from '@/env'
+import { setupQueues } from './jobs/queue'
 import { initMongoose } from './libs/mongoose'
 
 app
@@ -9,6 +10,7 @@ app
   })
   .then(async () => {
     await initMongoose()
+    await setupQueues()
 
     console.log(`HTTP Server Running on PORT ${env.PORT}! 🚀 `)
   })

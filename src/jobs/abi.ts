@@ -287,26 +287,6 @@ export const zicoAbi = [
     inputs: [
       {
         internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    name: 'freeCategoryMinted',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-    constant: true,
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
         name: 'account',
         type: 'address',
       },
@@ -373,6 +353,20 @@ export const zicoAbi = [
   {
     inputs: [],
     name: 'priceB',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+    constant: true,
+  },
+  {
+    inputs: [],
+    name: 'priceC',
     outputs: [
       {
         internalType: 'uint256',
@@ -589,34 +583,6 @@ export const zicoAbi = [
         type: 'address',
       },
       {
-        internalType: 'uint256',
-        name: 'id',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bytes',
-        name: 'data',
-        type: 'bytes',
-      },
-    ],
-    name: 'giveaway',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
-      },
-      {
         internalType: 'uint256[]',
         name: 'ids',
         type: 'uint256[]',
@@ -640,31 +606,42 @@ export const zicoAbi = [
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'to',
-        type: 'address',
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
       },
+    ],
+    name: 'getMaxSupply',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'pure',
+    type: 'function',
+    constant: true,
+  },
+  {
+    inputs: [
       {
         internalType: 'uint256',
         name: 'id',
         type: 'uint256',
       },
+    ],
+    name: 'getTotalSupply',
+    outputs: [
       {
         internalType: 'uint256',
-        name: 'amount',
+        name: '',
         type: 'uint256',
       },
-      {
-        internalType: 'bytes',
-        name: 'data',
-        type: 'bytes',
-      },
     ],
-    name: 'mint',
-    outputs: [],
-    stateMutability: 'payable',
+    stateMutability: 'view',
     type: 'function',
-    payable: true,
+    constant: true,
   },
   {
     inputs: [
@@ -696,7 +673,13 @@ export const zicoAbi = [
     payable: true,
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: 'address payable',
+        name: 'to',
+        type: 'address',
+      },
+    ],
     name: 'withdraw',
     outputs: [],
     stateMutability: 'nonpayable',

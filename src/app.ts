@@ -7,6 +7,7 @@ import { ZodError } from 'zod'
 
 import { env } from './env'
 import { notificationRoutes } from './routes/routes'
+import { serverAdapter } from './jobs/queue'
 
 const app = fastify()
 
@@ -42,6 +43,7 @@ app.register(fastifyJwt, {
 
 app.register(fastifyCookie)
 app.register(notificationRoutes)
+app.register(serverAdapter.registerPlugin(), { prefix: '/ui' })
 
 app.setErrorHandler((error, _, reply) => {
   if (error instanceof ZodError) {

@@ -14,6 +14,8 @@ const envSchema = z.object({
   PRIVATE_KEY_1: z.string(),
   PRIVATE_KEY_2: z.string(),
   PRIVATE_KEY_3: z.string(),
+  REDIS_ADDRESS: z.string(),
+  CONTRACT_ADDRESS: z.string(),
   JWT_SECRET: z.string(),
   PORT: z.coerce.number().default(3333),
 })

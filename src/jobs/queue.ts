@@ -1,57 +1,76 @@
-import Error from '@/schemas/Error'
-import { Queue, Worker } from 'bullmq'
+import { env } from '@/env'
+import { Queue, Worker, QueueEvents } from 'bullmq'
 import giveaway from './giveaway'
+import Redis from 'ioredis'
+import { createBullBoard } from '@bull-board/api'
+import { FastifyAdapter } from '@bull-board/fastify'
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
 
-const connection = {
-  host: 'asdas',
-  port: 2000,
-}
+const connection = new Redis(env.REDIS_ADDRESS, { maxRetriesPerRequest: null })
 
 export const giveawayQueue = new Queue('giveaway-queue', {
   connection,
 })
 
-const giveawayWorker1 = new Worker(
-  'worker1',
-  async (job) => {
-    const { receiver, amount1, amount2, amount3, order_id } = job.data
-    await giveaway(1, receiver, amount1, amount2, amount3, order_id)
-  },
-  { connection },
-)
+export const serverAdapter = new FastifyAdapter()
 
-const giveawayWorker2 = new Worker(
-  'worker2',
-  async (job) => {
-    const { receiver, amount1, amount2, amount3, order_id } = job.data
-    await giveaway(2, receiver, amount1, amount2, amount3, order_id)
-  },
-  { connection },
-)
-
-const giveawayWorker3 = new Worker(
-  'worker3',
-  async (job) => {
-    const { receiver, amount1, amount2, amount3, order_id } = job.data
-    await giveaway(3, receiver, amount1, amount2, amount3, order_id)
-  },
-  { connection },
-)
-
-giveawayWorker1.on('error', (err) => {
-  console.error(err)
-
-  Error.create({ account: '1', message: err, order_id: 'queue' })
+createBullBoard({
+  queues: [new BullMQAdapter(giveawayQueue)],
+  serverAdapter,
 })
 
-giveawayWorker2.on('error', (err) => {
-  console.error(err)
+serverAdapter.setBasePath('/ui')
 
-  Error.create({ account: '2', message: err, order_id: 'queue' })
-})
+export async function setupQueues() {
+  const giveawayWorker1 = new Worker(
+    'giveaway-queue',
+    async (job) => {
+      console.log('job', job)
+      const { account, amount1, amount2, amount3, order_id } = job.data
+      console.log('running', 3, account, amount1, amount2, amount3, order_id)
 
-giveawayWorker3.on('error', (err) => {
-  console.error(err)
+      await giveaway(1, account, amount1, amount2, amount3, order_id)
+    },
+    { connection, autorun: true },
+  )
 
-  Error.create({ account: '3', message: err, order_id: 'queue' })
-})
+  const giveawayWorker2 = new Worker(
+    'giveaway-queue',
+    async (job) => {
+      console.log('job', job)
+      const { account, amount1, amount2, amount3, order_id } = job.data
+      console.log('running', 2, account, amount1, amount2, amount3, order_id)
+      await giveaway(2, account, amount1, amount2, amount3, order_id)
+    },
+    { connection, autorun: true },
+  )
+
+  const giveawayWorker3 = new Worker(
+    'giveaway-queue',
+    async (job) => {
+      console.log('job', job)
+      const { account, amount1, amount2, amount3, order_id } = job.data
+      console.log('running', 3, account, amount1, amount2, amount3, order_id)
+      await giveaway(3, account, amount1, amount2, amount3, order_id)
+    },
+    { connection, autorun: true },
+  )
+
+  const queueEvents = new QueueEvents('queue', { connection })
+
+  queueEvents.on('waiting', ({ jobId }) => {
+    console.log(`A job with ID ${jobId} is waiting`)
+  })
+
+  queueEvents.on('active', ({ jobId, prev }) => {
+    console.log(`Job ${jobId} is now active; previous status was ${prev}`)
+  })
+
+  queueEvents.on('completed', ({ jobId, returnvalue }) => {
+    console.log(`${jobId} has completed and returned ${returnvalue}`)
+  })
+
+  queueEvents.on('failed', ({ jobId, failedReason }) => {
+    console.log(`${jobId} has failed with reason ${failedReason}`)
+  })
+}

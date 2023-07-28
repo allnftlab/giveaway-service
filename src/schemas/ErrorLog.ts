@@ -1,12 +1,12 @@
 import { Schema, model, Document } from 'mongoose'
 
-export interface IError extends Document {
+export interface IErrorLog extends Document {
   message: string
   order_id: string
   account: number
 }
 
-const ErrorSchema = new Schema(
+const ErrorLogSchema = new Schema(
   {
     message: { type: String, required: true },
     order_id: { type: String, required: false },
@@ -17,4 +17,4 @@ const ErrorSchema = new Schema(
   },
 )
 
-export default model<IError>('Error', ErrorSchema)
+export default model<IErrorLog>('ErrorLog', ErrorLogSchema)

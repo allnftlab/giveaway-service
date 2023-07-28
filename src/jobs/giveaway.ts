@@ -3,10 +3,10 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { publicClient, walletClient } from '@/client/client'
 import { zicoAbi } from './abi'
 import { env } from '@/env'
-import Error from '@/schemas/Error'
+import ErrorLog from '@/schemas/ErrorLog'
 
 const contract = getContract({
-  address: '0xb2Be4b3bfba1781c692a22ecd9E3963C339971CF',
+  address: '0xD7E9b11fB3Fe78C03fCca2FC2C4734CE44795D9b',
   abi: zicoAbi,
   publicClient,
 })
@@ -27,16 +27,34 @@ export default async function giveaway(
   order_id: string,
 ) {
   try {
+    console.log('going', worker, accounts[worker])
     const isPaused = await contract.read.paused()
     console.log('isPaused', isPaused)
 
+    const ids = []
+    const amounts = []
+    if (amount1 > 0) {
+      ids.push(BigInt(0))
+      amounts.push(amount1)
+    }
+    if (amount2 > 0) {
+      ids.push(BigInt(1))
+      amounts.push(amount2)
+    }
+    if (amount3 > 0) {
+      ids.push(BigInt(2))
+      amounts.push(amount3)
+    }
+
     const { request } = await publicClient.simulateContract({
       account: accounts[worker],
-      address: '0xb2Be4b3bfba1781c692a22ecd9E3963C339971CF',
+      address: env.CONTRACT_ADDRESS as `0x${string}`,
       abi: zicoAbi,
       functionName: 'giveawayBatch',
-      args: [receiver, amount1, amount2, amount3],
+      args: [receiver, ids, amounts, '0x'],
     })
+
+    console.log('giving away', [worker, receiver, amount1, amount2, amount3])
 
     const hash = await walletClient.writeContract(request)
 
@@ -51,9 +69,11 @@ export default async function giveaway(
       amount1,
       amount2,
       amount3,
-      transaction,
+      hash,
     )
   } catch (error) {
-    Error.create({ message: error, account: receiver, order_id })
+    console.log('error', error)
+    ErrorLog.create({ message: error, account: receiver, order_id })
+    throw new Error('internal error')
   }
 }

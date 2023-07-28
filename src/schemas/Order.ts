@@ -2,27 +2,25 @@ import { Schema, model, Document } from 'mongoose'
 
 export interface IOrder extends Document {
   user_address: string
-  payment_id: string
-  payment_method: string
   metadata: string
-  amount: number
+  amount1: number
+  amount2: number
+  amount3: number
   total_price: number
   currency: string
-  contract_address: string
-  hook_id: string
+  order_id: string
 }
 
 const OrderSchema = new Schema(
   {
     user_address: { type: String, required: true },
-    payment_id: { type: String, required: true },
-    payment_method: { type: String, required: true },
     metadata: { type: String, required: true },
-    amount: { type: Number, required: false },
+    amount1: { type: Number, required: false },
+    amount2: { type: Number, required: false },
+    amount3: { type: Number, required: false },
     total_price: { type: Number, required: false },
-    currency: { type: Number, required: true },
-    contract_address: { type: String, required: true },
-    hook_id: { type: String, required: true },
+    currency: { type: String, required: true },
+    order_id: { type: String, required: true },
   },
   {
     timestamps: true,
